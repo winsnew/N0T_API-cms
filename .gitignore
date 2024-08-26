@@ -1,5 +1,4 @@
 node_modules
-api/public/uploads/team
 .env.example
 .env
 secret.text
