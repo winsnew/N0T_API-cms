@@ -30,23 +30,21 @@ export const getProfileById = async (req, res) => {
 export const createProfile = async (req, res) => {
   try {
     const { name, title, description } = req.body;
-
-    // Handle profile image upload
     const profileImageUrl = req.files["Images"] && req.files["Images"].length > 0
       ? `/uploads/team/${req.files["Images"][0].filename}`
       : "";
     const stackImagesUrls = req.files["stackImages"] && req.files["stackImages"].length > 0
       ? req.files["stackImages"].map((file) => ({
-          src: `/uploads/team/${file.filename}`,
-          alt: file.originalname,
-        }))
+        src: `/uploads/team/${file.filename}`,
+        alt: file.originalname,
+      }))
       : [];
 
-    
+
     console.log('Profile Image:', profileImageUrl);
     console.log('Stack Images:', stackImagesUrls);
 
-    
+
     const newTeamMember = new TeamProfile({
       name,
       Images: profileImageUrl,
@@ -55,16 +53,16 @@ export const createProfile = async (req, res) => {
       stackImages: stackImagesUrls,
     });
 
-    
+
     const savedTeamMember = await newTeamMember.save();
 
-    
+
     res.status(201).json({
       message: "Team member created successfully",
       data: savedTeamMember,
     });
   } catch (error) {
-    
+
     console.error('Error creating team member:', error);
     res.status(500).json({
       message: "Error creating team member",
@@ -75,38 +73,67 @@ export const createProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { id } = req.params;
     const { name, title, description } = req.body;
+    const {id} = req.params;
 
-    const profileImageUrl = req.file
-      ? `../public/uploads/team/${req.file.filename}`
-      : undefined;
-    const stackImagesUrls = req.files
-      ? req.files.map((file) => ({
-          src: `../public/uploads/team/${file.filename}`,
-          alt: file.originalname,
-        }))
-      : undefined;
+    const existProfile = await TeamProfile.findById(id);
+    if (!existProfile) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
 
-    const updatedData = {
-      name,
-      title,
-      description,
-      ...(profileImageUrl && { Images: profileImageUrl }),
-      ...(stackImagesUrls && { stackImages: stackImagesUrls }),
+    // Delete old profile image if a new one is uploaded
+    if (existProfile.Images && req.files["Images"] && req.files["Images"].length > 0) {
+      const oldProfileImagePath = path.resolve(__dirname, '../public/uploads/team', existProfile.Images.split('/uploads/team/')[1]);
+      if (fs.existsSync(oldProfileImagePath)) {
+        fs.unlinkSync(oldProfileImagePath);
+      }
+    }
+
+    // Delete old stack images if new ones are uploaded
+    if (existProfile.stackImages && req.files["stackImages"] && req.files["stackImages"].length > 0) {
+      existProfile.stackImages.forEach((stackImage) => {
+        const oldStackImagePath = path.resolve(__dirname, '../public/uploads/team', stackImage.src.split('/uploads/team/')[1]);
+        if (fs.existsSync(oldStackImagePath)) {
+          fs.unlinkSync(oldStackImagePath);
+        }
+      });
+    }
+
+    // Prepare new profile image URL
+    const profileImageUrl = req.files["Images"] && req.files["Images"].length > 0
+      ? `/uploads/team/${req.files["Images"][0].filename}`
+      : existProfile.Images;
+
+    // Prepare new stack images URLs
+    const stackImagesUrls = req.files["stackImages"] && req.files["stackImages"].length > 0
+      ? req.files["stackImages"].map((file) => ({
+        src: `/uploads/team/${file.filename}`,
+        alt: file.originalname,
+      }))
+      : existProfile.stackImages;
+
+    //updating process
+    const updatedProfileData = {
+      name: name || existProfile.name,
+      Images: profileImageUrl,
+      title: title || existProfile.title,
+      description: description || existProfile.description,
+      stackImages: stackImagesUrls,
     };
 
-    const updatedProfile = await TeamProfile.findByIdAndUpdate(
-      id,
-      updatedData,
-      { new: true }
-    );
+    // Save the updated profile
+    const updatedProfile = await TeamProfile.findByIdAndUpdate(id, updatedProfileData, { new: true });
 
-    res.status(200).json(updatedProfile);
+    res.status(200).json({
+      message: "Team member updated successfully",
+      data: updatedProfile,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating team member", error: error.message });
+    console.error('Error updating team member:', error);
+    res.status(500).json({
+      message: "Error updating team member",
+      error: error.message,
+    });
   }
 };
 
