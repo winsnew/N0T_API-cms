@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import userRoute from "./routes/user.route.js";
 import authRoute from "./routes/auth.route.js";
 import teamRoute from "./routes/team.route.js";
+import portoRoute from "./routes/porto.route.js";
 
 
 dotenv.config();
@@ -37,7 +38,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, '/public/uploads/')));
 
-
 app.listen(8000, () => {
   console.log("server is running");
 });
@@ -45,6 +45,7 @@ app.listen(8000, () => {
 app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/team", teamRoute);
+app.use("/api/porto", portoRoute);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
