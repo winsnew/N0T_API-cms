@@ -6,11 +6,15 @@ const portoScheme = new mongoose.Schema(
             type: String,
             required: true
         },
+        category: {
+            type: String,
+            required: true
+        },
         technology: {
             type: String,
             required: true
         },
-        images: {
+        Images: {
             type: String,
             required: true
         },
