@@ -8,7 +8,6 @@ import userRoute from "./routes/user.route.js";
 import authRoute from "./routes/auth.route.js";
 import teamRoute from "./routes/team.route.js";
 import portoRoute from "./routes/porto.route.js";
-import ServerlessHttp from "serverless-http";
 
 
 dotenv.config();
@@ -47,8 +46,6 @@ app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/team", teamRoute);
 app.use("/api/porto", portoRoute);
-
-export default ServerlessHttp(app);
 
 
 app.use((err, req, res, next) => {
