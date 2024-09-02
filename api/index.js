@@ -42,10 +42,10 @@ app.listen(8000, () => {
   console.log("server is running");
 });
 
-app.use("/api/user", userRoute);
-app.use("/api/auth", authRoute);
-app.use("/api/team", teamRoute);
-app.use("/api/porto", portoRoute);
+app.use("functions/api/user", userRoute);
+app.use("functions/api/auth", authRoute);
+app.use("functions/api/team", teamRoute);
+app.use("functions/api/porto", portoRoute);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -56,3 +56,8 @@ app.use((err, req, res, next) => {
     msg,
   });
 });
+
+export const handler = async (event, context) => {
+  const serverlessExpress = require('@vendia/serverless-express');
+  return serverlessExpress({ app })(event, context);
+};
