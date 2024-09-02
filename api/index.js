@@ -43,10 +43,10 @@ app.listen(8000, () => {
   console.log("server is running");
 });
 
-app.use("/.netlify/functions/api/user", userRoute);
-app.use("/.netlify/functions/api/auth", authRoute);
-app.use("/.netlify/functions/api/team", teamRoute);
-app.use("/.netlify/functions/api/porto", portoRoute);
+app.use("/api/user", userRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/team", teamRoute);
+app.use("/api/porto", portoRoute);
 
 export default ServerlessHttp(app);
 

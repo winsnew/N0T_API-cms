@@ -1,5 +1,0 @@
-[build]
-  functions = "/function/api/"
-
-[functions]
-  node_bundler = "esbuild"
