@@ -1,5 +1,10 @@
 [build]
-  functions = "functions"
+  command = "npm run dev"
+  functions = "/function/api/"
 
 [functions]
   node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  status = 200

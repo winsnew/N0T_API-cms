@@ -8,6 +8,7 @@ import userRoute from "./routes/user.route.js";
 import authRoute from "./routes/auth.route.js";
 import teamRoute from "./routes/team.route.js";
 import portoRoute from "./routes/porto.route.js";
+import ServerlessHttp from "serverless-http";
 
 
 dotenv.config();
@@ -42,10 +43,13 @@ app.listen(8000, () => {
   console.log("server is running");
 });
 
-app.use("functions/api/user", userRoute);
-app.use("functions/api/auth", authRoute);
-app.use("functions/api/team", teamRoute);
-app.use("functions/api/porto", portoRoute);
+app.use("/.netlify/functions/api/user", userRoute);
+app.use("/.netlify/functions/api/auth", authRoute);
+app.use("/.netlify/functions/api/team", teamRoute);
+app.use("/.netlify/functions/api/porto", portoRoute);
+
+export default ServerlessHttp(app);
+
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -57,7 +61,3 @@ app.use((err, req, res, next) => {
   });
 });
 
-export const handler = async (event, context) => {
-  const serverlessExpress = require('@vendia/serverless-express');
-  return serverlessExpress({ app })(event, context);
-};
