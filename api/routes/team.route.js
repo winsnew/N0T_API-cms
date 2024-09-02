@@ -32,7 +32,7 @@ const upload = multer({
 
 const uploadFields = upload.fields([
   { name: "Images", maxCount: 1 },
-  { name: "stackImages", maxCount: 10 },
+  { name: "stackImages", maxCount: 20 },
 ]);
 
 router.get("/", getAllTeam);

@@ -29,7 +29,7 @@ export const getProfileById = async (req, res) => {
 
 export const createProfile = async (req, res) => {
   try {
-    const { name, title, description } = req.body;
+    const { name, title, detail, description } = req.body;
     const profileImageUrl = req.files["Images"] && req.files["Images"].length > 0
       ? `/uploads/team/${req.files["Images"][0].filename}`
       : "";
@@ -40,15 +40,11 @@ export const createProfile = async (req, res) => {
       }))
       : [];
 
-
-    console.log('Profile Image:', profileImageUrl);
-    console.log('Stack Images:', stackImagesUrls);
-
-
     const newTeamMember = new TeamProfile({
       name,
       Images: profileImageUrl,
       title,
+      detail,
       description,
       stackImages: stackImagesUrls,
     });
@@ -73,7 +69,7 @@ export const createProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { name, title, description } = req.body;
+    const { name, title, detail, description } = req.body;
     const {id} = req.params;
 
     const existProfile = await TeamProfile.findById(id);
@@ -81,7 +77,6 @@ export const updateProfile = async (req, res) => {
       return res.status(404).json({ message: "Profile not found" });
     }
 
-    // Delete old profile image if a new one is uploaded
     if (existProfile.Images && req.files["Images"] && req.files["Images"].length > 0) {
       const oldProfileImagePath = path.resolve(__dirname, '../public/uploads/team', existProfile.Images.split('/uploads/team/')[1]);
       if (fs.existsSync(oldProfileImagePath)) {
@@ -89,7 +84,6 @@ export const updateProfile = async (req, res) => {
       }
     }
 
-    // Delete old stack images if new ones are uploaded
     if (existProfile.stackImages && req.files["stackImages"] && req.files["stackImages"].length > 0) {
       existProfile.stackImages.forEach((stackImage) => {
         const oldStackImagePath = path.resolve(__dirname, '../public/uploads/team', stackImage.src.split('/uploads/team/')[1]);
@@ -99,12 +93,10 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    // Prepare new profile image URL
     const profileImageUrl = req.files["Images"] && req.files["Images"].length > 0
       ? `/uploads/team/${req.files["Images"][0].filename}`
       : existProfile.Images;
 
-    // Prepare new stack images URLs
     const stackImagesUrls = req.files["stackImages"] && req.files["stackImages"].length > 0
       ? req.files["stackImages"].map((file) => ({
         src: `/uploads/team/${file.filename}`,
@@ -112,16 +104,15 @@ export const updateProfile = async (req, res) => {
       }))
       : existProfile.stackImages;
 
-    //updating process
     const updatedProfileData = {
       name: name || existProfile.name,
       Images: profileImageUrl,
       title: title || existProfile.title,
+      detail: detail || existProfile.detail,
       description: description || existProfile.description,
       stackImages: stackImagesUrls,
     };
 
-    // Save the updated profile
     const updatedProfile = await TeamProfile.findByIdAndUpdate(id, updatedProfileData, { new: true });
 
     res.status(200).json({
@@ -174,7 +165,6 @@ export const deleteProfile = async (req, res) => {
     await TeamProfile.findByIdAndDelete(id);
     res.status(200).json({ message: "Profile deleted successfully" });
   } catch (error) {
-    // Tangani kesalahan
     console.error('Error deleting profile:', error);
     res.status(500).json({ message: "Error deleting profile", error: error.message });
   }
