@@ -24,7 +24,7 @@ mongoose
 const app = express();
 app.use(
   cors({
-    origin: ["https://n0-t-portofolio.vercel.app"],
+    origin: ["https://n0-t-portofolio.vercel.app", "localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
