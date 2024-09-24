@@ -119,7 +119,6 @@ export const deletePorto = async (req, res) => {
     await PortoModel.findByIdAndDelete(id);
     res.status(200).json({ message: "porto deleted successfully" });
   } catch (error) {
-    // Tangani kesalahan
     console.error('Error deleting porto:', error);
     res.status(500).json({ message: "Error deleting porto", error: error.message });
   }
